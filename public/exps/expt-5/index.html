@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SOLVE</title>
+    <!-- <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"> -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.zingchart.com/zingchart.min.js"></script>
+<script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+<script type="text/javascript" src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
+<script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
+
+    <link
+      rel="stylesheet"
+      href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css"
+    />
+    <link rel="stylesheet" href="css/general.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/query.css" />
+    <!-- <script defer src="https://code.jquery.com/jquery.min.js"></script>
+    <script
+      defer
+      src="https://code.jquery.com/jquery-3.7.0.min.js"
+      integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
+      crossorigin="anonymous"
+    ></script>
+    <script
+      defer
+      src="https://code.jquery.com/ui/1.8.17/jquery-ui.min.js"
+    ></script>
+    <script defer src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script defer src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <script
+      defer
+      type="text/javascript"
+      src="//cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"
+    ></script>
+
+    <script defer src="js/script.js"></script> -->
+  </head>
+  <body onload="startsim();varinit();
+">
+    <!-- Logo -->
+    <!-- Experiment Title -->
+    <!-- Tools Sections -->
+    <!-- Tools Container -->
+    <!-- Simulation Container -->
+    <div class="title-div">
+      <!-- <span class="round left-top"></span>
+      <span class="round left-bottom"></span>
+      <span class="round right-top"></span>
+      <span class="round right-bottom"></span> -->
+      <div class="logo-div">
+        <a href="#"><img src="images/nitk.svg" alt="Logo" class="logo" /></a>
+      </div>
+      <h1>Free Vibration of a Fixed-Fixed Beam: <br>Stepper Motor</h1>
+    </div>
+    <div class="container">
+     
+
+      <div class="main">
+        <img src="http://10.100.82.212:8080/video" type="video/mp4"  style="width: 100%;height: 100%;">
+        <div class="main-section">
+          
+          <div id="simulation" class="main__task-div">
+            <div id="controls" class="div__control">
+              <!-- <img id="playpausebutton" onclick="simstate()" src="./images/blueplaydull.svg" alt="" /> -->
+              <img id="graphbutton" onclick="plotgraph()" src="./images/graphbutton.svg" alt="" />
+            </div>
+            <h3 class="task-title">Actuation Modes</h3>
+            <div class="canvas__div">
+              <div id="chartContainer" style="width:100%; height:300px; opacity: 0%;"></div>
+              
+              <div class = "button-container">
+                <!-- <button id="generatePlot" onclick="runMotor()">Load</button>
+                <button id="generatePlot" onclick="runStepperMotor()">Load Stepper</button> -->
+                <button id="loadButton" onclick="runExpt()">Start Experiment!</button>
+        
+                </div>
+              <div class="img-div">
+                <div class="circuit-dia">
+                  <!-- <img src="images/massSystem.PNG" alt="mass system" /> -->
+                  <!--Put our buttons-->
+                  
+
+                  <span class="tooltip cir-tooltip"></span>
+                </div>
+                <!-- <div class="cross-img">
+                  <img src="images/crossC.PNG" alt="cross section" />
+                </div> -->
+                <!-- <div class="other-sec display-hide">
+                  <div>
+                    <label for="CsArea">C/s Area(m^2)</label>
+                    <input class="var-spinner" id="CsArea" name="value" />
+                  </div>
+                  <div>
+                    <label for="Ivalue">Ixx(m^4) </label>
+                    <input class="var-spinner" id="Ivalue" name="value" />
+                  </div>
+                </div> -->
+                <div>
+                  
+                </div>
+               
+              </div>
+              <div id="canvas-container">
+               
+                <!-- <iframe class = "img" src = "http://localhost:8080/live_stream_1/"> -->
+                <!-- <iframe src="http://localhost:8080/live_stream_1" type="video/mp4"  style="position: inherit;width: 100%;height: 100%;"></iframe>  -->
+                <!-- <canvas id="canvas" class="canvas">
+                 
+                </canvas>
+               
+              </div>
+              <div class="graph-div display-hide" id="generatePlot"></div>
+              <!-- <div class="graph-div display-hide" id="zingchart-graphscreen2"></div> -->
+              <!-- <div class="graph-div display-hide">
+                <canvas id="graphscreen1" class="canvas">
+                
+
+                </canvas>
+              </div>
+              <div class="graph-div display-hide">
+                <canvas id="graphscreen2" class="canvas"></canvas>
+              </div> -->
+            </div>
+          </div>
+          </div>
+          <div class="main__task-div footer">
+            <p>Copyright © SOLVE The Virtual Lab @ NITK Surathkal</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      // Function to show or hide buttons based on the selected option
+      //Load and Load stepper button fuction
+      var i=-1
+      function runExpt() {
+      // Make a fetch request to the Express server to run the motor.
+      fetch('http://10.100.80.193:3000/api/expt-5')
+        .then(response => response.text())
+        .then(text => {
+          // The motor is running!
+          i+=1;
+          console.log(i)
+        });
+    }
+    function plotgraph()
+    {
+      document.getElementById('chartContainer').style.opacity = 100;
+    }
+
+    window.onload = function() {
+        var dataPoints = [];
+        function getDataPointsFromCSV(csv) {
+            var dataPoints = csvLines = points = [];
+            console.log("H-2")
+            csvLines = csv.split(/[\r?\n|\r|\n]+/);         
+		        var sum = parseFloat(0);
+            for(var i=0;i<csvLines.length;i++)
+            {
+              if(csvLines[i].length>0)
+              {
+                points = csvLines[i].split(",");
+              }
+            }
+            for (var i = 0; i < csvLines.length; i++)
+                if (csvLines[i].length > 0) {
+                    points = csvLines[i].split(",");
+                    dataPoints.push({ 
+                        x: parseFloat(i+1), 
+                        y: parseFloat(points[0]) 		
+                    });
+                    console.log("H-3")
+                }
+            return dataPoints;
+        }
+	
+	$.get("http://10.100.80.193:3000/data-5/data.txt", function(data) {
+	    var chart = new CanvasJS.Chart("chartContainer", {
+		    title: {
+		         text: "Acceleration vs Time",
+		    },
+		    data: [{
+		         type: "spline",
+		         dataPoints: getDataPointsFromCSV(data)
+          //   dataPoints: [
+          //     {x: new Date(2002, 0), y: 2506000},
+          //     {x: new Date(2003, 0), y: 2798000},
+          //     {x: new Date(2004, 0), y: 3386000},
+          //     {x: new Date(2005, 0), y: 6944000},
+          //     {x: new Date(2006, 0), y: 6026000},
+          //     {x: new Date(2007, 0), y: 2394000},
+          //     {x: new Date(2008, 0), y: 1872000},
+          //     {x: new Date(2009, 0), y: 2140000},
+          //     {x: new Date(2010, 0), y: 7289000},
+          //     {x: new Date(2011, 0), y: 4830000},
+          //     {x: new Date(2012, 0), y: 2009000},
+          //     {x: new Date(2013, 0), y: 2840000},
+          //     {x: new Date(2014, 0), y: 2396000},
+          //     {x: new Date(2015, 0), y: 1613000},
+          //     {x: new Date(2016, 0), y: 2821000},
+          //     {x: new Date(2017, 0), y: 2000000}
+          //   ]
+		      }]
+	     });
+		
+	      chart.render();
+
+	});
+  }
+
+    //   const generatePlotButton = document.getElementById("generatePlot");
+    // generatePlotButton.addEventListener("click", () => {
+    //   // Open the plot page in a new window/tab
+    //   window.open("/plotPage.html", "_blank");
+    // });
+    
+
+    // Example ZingChart configurations for graphs
+  //   const chartConfig1 = {
+  //     type: 'line',
+  //     series: [{ values: [5, 10, 15, 20, 25] }],
+  //   };
+
+  //   const chartConfig2 = {
+  //     type: 'bar',
+  //     series: [{ values: [30, 20, 10, 15, 5] }],
+  //   };
+
+  //   // Render ZingChart graphs in the specified containers
+  //   renderZingChartGraph('zingchart-graphscreen1', chartConfig1);
+  //   renderZingChartGraph('zingchart-graphscreen2', chartConfig2);
+
+  //   // Show the graph containers after rendering the graphs
+  //   document.getElementById('zingchart-graphscreen1').style.display = 'block';
+  //   document.getElementById('zingchart-graphscreen2').style.display = 'block';
+  // }
+
+  // // Function to render ZingChart graphs
+  // function renderZingChartGraph(containerId, chartConfig) {
+  //   zingchart.render({
+  //     id: containerId,
+  //     data: chartConfig,
+  //     height: '300px',
+  //     width: '100%'
+  //   });
+  // }
+  
+   </script>
+
+   
+    
+    
+  </body>
+</html>
