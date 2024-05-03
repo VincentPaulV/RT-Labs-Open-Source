@@ -242,7 +242,7 @@ as a file named as ```data.txt```
 
 2. Copy-paste the code from any of the existing folders  (for example let us copy from the *"expt-9"* folder)
 
-    > For more detailed explanation of the code go here.
+    > For more detailed explanation of the code go [here](https://github.com/VincentPaulV/RT-Labs-Open-Source?tab=readme-ov-file#publicexpsexpt-1-10indexhtml).
 
 3. You'll have 3 folders & 1 HTML file to deal with:
    ```python
