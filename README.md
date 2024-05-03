@@ -48,16 +48,16 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 Modules / Dependencies required before we proceed:
 > -  NodeJS + npm (https://nodejs.org/en/download)
 > We'll download the latest version and we have npm (node package manager included in it)
-> - nvm (Node Version Manager) in case you have an exisiting NodeJS installation we need to be using a Node version of > 18.6.0 so it's advised to have NVM in case you've already tried out Node some time ago.
+> - nvm (Node Version Manager) In case you have an existing NodeJS installation we need to be using a Node version of > 18.6.0 so it's advised to have NVM in case you've already tried out Node some time ago.
 
-4. Now that we have NodeJS and npm intsalled go to the project and open the Terminal (this should be the path if you have used GitHub desktop & have opened as VS Code Terminal)
+4. Now that we have NodeJS and npm installed go to the project and open the Terminal (this should be the path if you have used GitHub desktop & have opened as VS Code Terminal)
 
 ![alt text](image.png)
 
 5. Run the following command to install all the dependencies:
  
    ``` npm install ```
-6. Now run the folowing command to install NextJS globally in your system (remove -g in case you don't want to install it globally):
+6. Now run the following command to install NextJS globally in your system (remove -g in case you don't want to install it globally):
    
    ``` npm install next -g ```
 
@@ -104,7 +104,7 @@ Go to the [Admin Page](http://localhost:3000/admin) of the website. ("localhost:
 
 Login with your registered credentials as a collaborator.
 
-> Note: Incase you aren't a collaborator you'll see someting like this. 
+> Note: In case you aren't a collaborator you'll see something like this. 
 
 ![alt text](image-6.png)
 
@@ -112,12 +112,12 @@ If you are a collaborator already you'll see something like this:
 
 ![alt text](image-7.png)
 
-Now go to **Projects** section in the Admin Page & select any experiment.
+Now go to the **Projects** section in the Admin Page & select any experiment.
 
 ![alt text](image-8.png)
 
 You'll notice the *experiment_URL* section, replace '10.100.80.193:3000' with '<your_ip_address>:3000'
 
-And that's it, just save your changes and voila!
+And that's it, just save your changes, and voila!
 
 RTLabs-Open Source Web Application is now running on your system too!
