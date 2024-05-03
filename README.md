@@ -146,7 +146,7 @@ To make an experiment page we must first understand the **pages/api** & **public
 
 2. Copy-paste the code from any of the existing API files  (for example let us copy from the *"expt_9.js"* file)
 
-    > For more detailed explanation of the code go here.
+    > For more detailed explanation of the code go [here](https://github.com/VincentPaulV/RT-Labs-Open-Source?tab=readme-ov-file#pagesapi-1).
 
 3. Make the following changes:
 
