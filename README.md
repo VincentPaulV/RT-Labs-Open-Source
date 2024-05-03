@@ -537,3 +537,180 @@ With this we have successfully crearted the HTML Page that:
  - Plot the graph of the data we have stored in the CSV file.
 
 And voila we are done with adding an experiment!
+
+## 5. Bonus Topic: ```pages/api``` & ```public/exps/expt-$[1-10]/index.html``` explained
+
+### ```pages/api```
+
+There are 3 utility functions used in every ```NodeJS``` file in ```pages/api```.
+   #### 1. Fetching Data: ```fetchData()```
+   ```javascript
+    const API_URL = REPLACE_WITH_YOUR_EXPERIMENT_IP_ADDRESS; // Replace with the actual API URL
+    const csvContent = ['accel_x, accel_y, accel_z']; // Array to store CSV data
+    
+    function fetchData() {
+        fetch(API_URL)
+        .then(response => response.text())
+        .then(data => {
+            csvContent.push(data);
+            console.log(data); // Add fetched data to CSV content array
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    }
+```
+ - Names the column headers as ['accel_x, accel_y, accel_z']
+ - Response from the API is pushed into the csvContent list
+ - fetch-catch used to detect any error while data being taken from the API
+
+   #### 2. Saving the fetched data as a CSV: ```startFetching()```
+   ```javascript
+   function startFetching() {
+        fetch(API_URL+'/run')
+        .then(() => {
+            setTimeout(() => {
+            const intervalId = setInterval(fetchData, 250); // Fetch data every 0.25 seconds
+            setTimeout(() => {
+                clearInterval(intervalId);
+                downloadCSV(); // Download CSV after 10 seconds
+            }, 5000);
+            }, 10);
+        })
+        .catch(error => {
+            console.error('Error starting data fetching:', error);
+            res.status(500).json({ error: 'Error starting data fetching' });
+        });
+    }
+    
+    // Start fetching data when this API endpoint is called
+    startFetching();
+    ```
+ - Triggering the actuator first (API_URL+/run)
+ - Using setInterval & setTimeout to call ```fetchData()``` for every 0.25 seconds for 5 seconds in total
+ - Uses ```downloadCSV()``` to save the file after 5 seconds
+ - fetch-catch used to detect any error while data being taken from the API
+
+#### 3. Saving the file as a CSV: ```downloadCSV()```
+   ```javascript
+    var i=0;
+    function downloadCSV() {
+        const csvString = csvContent.join('\n'); // Generate CSV string
+        const filePath = PATH_TO_REPO+'/my-portfolio/public/'+FOLDER_TO_STORE_DATA_IN_PUBLIC_FOLDER+'/data.txt'; // Replace with your desired file path
+        i+=1
+        fs.writeFile(filePath, csvString, (err) => {
+        if (err) {
+            console.error('Error saving CSV file:', err);
+            res.status(500).json({ error: 'Error saving CSV file' });
+        } else {
+            console.log('CSV file saved successfully!');
+            res.status(200).json({ message: 'CSV file saved successfully' });
+        }
+        });
+    }
+```
+ - The file is saved as a CSV in the filePath mentioned in the ```filePath``` variable.
+
+### ```public/exps/expt-$[1-10]/index.html```
+
+#### HTML code with all the necessary components:
+  1. Live Stream
+  2. Start Experiment Button
+  3. Plot Graph Button
+
+```html
+      <img src= LIVE_STREAM_LINK type="video/mp4"  style="width: 100%;height: 100%;">
+      <div class="main-section">
+        
+        <div id="simulation" class="main__task-div">
+          <div id="controls" class="div__control">
+            <img id="graphbutton" onclick="plotgraph()" src="./images/graphbutton.svg" alt="" />
+          </div>
+          <h3 class="task-title">Actuation Modes</h3>
+          <div class="canvas__div">
+            <div id="chartContainer" style="width:100%; height:300px; opacity: 0%;"></div>
+            
+            <div class = "button-container">
+              <button id="loadButton" onclick="runExpt()">Start Experiment!</button>
+      
+              </div>
+            <div class="img-div">
+              <div class="circuit-dia">
+                <!-- <img src="images/massSystem.PNG" alt="mass system" /> -->
+                <!--Put our buttons-->
+                
+
+                <span class="tooltip cir-tooltip"></span>
+              </div>
+             
+            </div>
+```
+
+#### 1. Run Experiment: ```runExpt()```
+
+ ```javascript
+      function runExpt() {
+      // Make a fetch request to the NextJS route to run the pages/api utility code.
+      fetch('http://<your_ip_address>:3000/api/expt-9')
+        .then(response => response.text())
+        .then(text => {
+          // The motor is running!
+          i+=1;
+          console.log(i)
+        });
+    }
+```
+#### 2. Plot the graph: ```plotgraph()```
+```javascript
+    function plotgraph()
+    {
+      document.getElementById('chartContainer').style.opacity = 100;
+    }
+```
+#### 3. Convert CSV to JSON Array for ChartJS : ```getDataPointsFromCSV(csv)```
+```javascript
+    window.onload = function() {
+        var dataPoints = [];
+        function getDataPointsFromCSV(csv) {
+            var dataPoints = csvLines = points = [];
+            console.log("H-2")
+            csvLines = csv.split(/[\r?\n|\r|\n]+/);         
+		        var sum = parseFloat(0);
+            for(var i=0;i<csvLines.length;i++)
+            {
+              if(csvLines[i].length>0)
+              {
+                points = csvLines[i].split(",");
+              }
+            }
+            for (var i = 0; i < csvLines.length; i++)
+                if (csvLines[i].length > 0) {
+                    points = csvLines[i].split(",");
+                    dataPoints.push({ 
+                        x: parseFloat(i+1), 
+                        y: parseFloat(points[0]) 		
+                    });
+                    console.log("H-3")
+                }
+            return dataPoints;
+        }
+```
+
+#### 4. Plot the graph using ChartJS :
+
+```javascript
+	$.get("http://<your_ip_address>:3000/FOLDER_TO_STORE_DATA_IN_PUBLIC_FOLDER/data.txt", function(data) {
+	    var chart = new CanvasJS.Chart("chartContainer", {
+		    title: {
+		         text: "Acceleration vs Time",
+		    },
+		    data: [{
+		         type: "spline",
+		         dataPoints: getDataPointsFromCSV(data)
+          
+		      }]
+	     });
+		
+	      chart.render();
+
+	});
+  }
+```
