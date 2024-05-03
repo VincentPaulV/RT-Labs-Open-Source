@@ -9,7 +9,7 @@
 Modules / Dependencies required before we proceed:
 > -  NodeJS + npm (https://nodejs.org/en/download)
 > We'll download the latest version and we have npm (node package manager included in it)
-> - nvm (Node Version Manager) In case you have an existing NodeJS installation we need to be using a Node version of > 18.6.0 so it's advised to have NVM in case you've already tried out Node some time ago.
+> - nvm (Node Version Manager) In case you have an existing NodeJS installation we need to use a Node version of > 18.6.0 so it's advised to have NVM in case you've already tried out Node some time ago.
 
 4. Now that we have NodeJS and npm installed go to the project and open the Terminal (this should be the path if you have used GitHub desktop & have opened as VS Code Terminal)
 
@@ -87,11 +87,11 @@ RTLabs-Open Source Web Application is now running on your system too!
 
 Replace "<your_ip_address>" with the IP address of the device hosting the web application
 
-> Note: If you are hosting the web appliaction, the url to it on the network would be <your_ip_address>:3000, so make sure you know your IP Address
+> Note: If you are hosting the web application, the URL to it on the network would be <your_ip_address>:3000, so make sure you know your IP Address
 
 ### Experiments Table
 
-> Any new experiment that has been added please do update this table, (it'll make me happier to see the list grow! )
+> For any new experiment that has been added please do update this table, (it'll make me happier to see the list grow! )
 
 | Experiment No | Title of Experiment | experiment_URL |
 | ------------- | -------------       | --------------  | 
@@ -132,7 +132,7 @@ Click on the + icon as in the image and you'll have the option to add a new expe
 
 ![alt text](image-9.png)
 
-> Note: Slug is used by NextJS to route the experiment card to the right experiment, so hence it is not a part of the experiment content, so nothing to worry if you're just here to add an experiment, because NextJS will automatically route the newly generated card to the experiment details you have entered.
+> Note: NextJS uses slug to route the experiment card to the right experiment, so hence it is not a part of the experiment content, so nothing to worry if you're just here to add an experiment because NextJS will automatically route the newly generated card to the experiment details you have entered.
 
 ## 4. What to do to create an experiment on the targeted "experiment_URL"?
 
@@ -146,7 +146,7 @@ To make an experiment page we must first understand the **pages/api** & **public
 
 2. Copy-paste the code from any of the existing API files  (for example let us copy from the *"expt_9.js"* file)
 
-    > For more detailed explanation of the code go [here](https://github.com/VincentPaulV/RT-Labs-Open-Source?tab=readme-ov-file#pagesapi-1).
+    > For a more detailed explanation of the code go [here](https://github.com/VincentPaulV/RT-Labs-Open-Source?tab=readme-ov-file#pagesapi-1).
 
 3. Make the following changes:
 
@@ -217,10 +217,10 @@ Variables to be replaced:
 
 To keep this discussion simple, this code interacts with your experiment hardware (i.e. the web server running on your microcontroller)
 
-It's functions are to:
+Its functions are to:
 - Trigger the experiment by running the actuator (be it a motor or a shaker)
 - Fetch the data from the web server (the web server sends the accelerometer data as a text response)
-- Complie the data and make it a CSV file
+- Compile the data and make it a CSV file
 - Storing it in filePath mentioned above that is ```PATH_TO_REPO+'/my-portfolio/public/'+FOLDER_TO_STORE_DATA_IN_PUBLIC_FOLDER```
 as a file named as ```data.txt```
 
@@ -242,7 +242,7 @@ as a file named as ```data.txt```
 
 2. Copy-paste the code from any of the existing folders  (for example let us copy from the *"expt-9"* folder)
 
-    > For more detailed explanation of the code go [here](https://github.com/VincentPaulV/RT-Labs-Open-Source?tab=readme-ov-file#publicexpsexpt-1-10indexhtml).
+    > For a more detailed explanation of the code go [here](https://github.com/VincentPaulV/RT-Labs-Open-Source?tab=readme-ov-file#publicexpsexpt-1-10indexhtml).
 
 3. You'll have 3 folders & 1 HTML file to deal with:
    ```python
@@ -531,7 +531,7 @@ Variables to be replaced:
 | <your_ip_address>            | The IP address of the device hosting the web application        |         
 | FOLDER_TO_STORE_DATA_IN_PUBLIC_FOLDER             | The folder in which our data.txt (Acceleration data) has to be stored (if it's the 11th expt then it is *expt-11*)        | 
 
-With this we have successfully crearted the HTML Page that:
+With this, we have successfully created the HTML Page that:
  - Contains the Live Stream
  - Contains the Buttons to access the API file that is in ```pages/api```
  - Plot the graph of the data we have stored in the CSV file.
@@ -560,7 +560,7 @@ There are 3 utility functions used in every ```NodeJS``` file in ```pages/api```
 ```
  - Names the column headers as ['accel_x, accel_y, accel_z']
  - Response from the API is pushed into the csvContent list
- - fetch-catch used to detect any error while data being taken from the API
+ - fetch-catch used to detect any error while data is being taken from the API
 
    #### 2. Saving the fetched data as a CSV: ```startFetching()```
    ```javascript
@@ -587,7 +587,7 @@ There are 3 utility functions used in every ```NodeJS``` file in ```pages/api```
  - Triggering the actuator first (API_URL+/run)
  - Using setInterval & setTimeout to call ```fetchData()``` for every 0.25 seconds for 5 seconds in total
  - Uses ```downloadCSV()``` to save the file after 5 seconds
- - fetch-catch used to detect any error while data being taken from the API
+ - fetch-catch used to detect any error while data is being taken from the API
 
 #### 3. Saving the file as a CSV: ```downloadCSV()```
    ```javascript
