@@ -10,8 +10,8 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://localhost:3001/'),
-  title: "Sanity Next.js Portfolio Site",
-  description: "A personal portfolio site built with Sanity and Next.js",
+  title: "RT-Labs",
+  description: "RT-Labs is Remote Triggered Labs, built for students to practice and learn experiments.",
   openGraph: {
     images: "add-your-open-graph-image-url-here",
   },
