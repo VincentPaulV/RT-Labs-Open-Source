@@ -3,8 +3,8 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import Navbar from "./components/global/Navbar";
-import Footer from "./components/global/Footer";
+import Navbar from "../src/components/global/Navbar";
+import Footer from "../src/components/global/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,7 +22,9 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
     <html lang="en">
       <body className={`${inter.className} bg-zinc-900 text-white`}>
         <Navbar />
-        {children}
+        <div className="mt-20">
+          {children}
+        </div>
         <Footer />
       </body>
     </html>
