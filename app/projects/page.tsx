@@ -1,19 +1,19 @@
 
 // app/projects/page.tsx
 
-import Image from "next/image";
 import Link from "next/link";
 import { getExperiment } from "@/sanity/sanity.query";
 import type { ProjectType } from "@/types";
+import GradualSpacing from "../components/ui/gradual-spacing";
 
 export default async function Project() {
   const projects: ProjectType[] = await getExperiment();
 
   return (
     <main className="max-w-7xl mx-auto md:px-16 px-6">
-      <section className="max-w-2xl mb-16">
+      <section className="max-w-4xl mb-16">
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl mb-6 lg:leading-[3.7rem] leading-tight">
-          Vibrations RT-Labs Experiments
+          <GradualSpacing text="Vibrations RT-Labs Experiments" />  
         </h1>
         <p className="text-base text-zinc-400 leading-relaxed">
           These are some experiments developed in-house at NITK that can be used for testing the setup.

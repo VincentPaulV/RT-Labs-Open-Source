@@ -1,9 +1,10 @@
 // app/page.tsx
-'use client';
+
 import { getProfile } from "@/sanity/sanity.query";
 import type { ProfileType } from "@/types";
 import Link from "next/link";
 import { FormEvent } from 'react'
+import GradualSpacing from "./components/ui/gradual-spacing";
 
 export default async function Home() {
   const profile: ProfileType[] = await getProfile();
@@ -22,13 +23,13 @@ export default async function Home() {
     // ...
   }
   return (
-    <main className="max-w-7xl mx-auto lg:px-16 px-5">
+    <main className="max-w-7xl mx-auto lg:px-16 px-6 grow">
       <section className="flex xl:flex-row flex-col xl:items-center items-start xl:justify-center justify-between gap-x-12 lg:mt-32 mt-20 mb-16">
         {profile &&
           profile.map((data) => (
-            <div key={data._id} className="lg:max-w-2xl max-w-2xl">
+            <div key={data._id} className="lg:max-w-5xl max-w-2xl">
               <h1 className="text-3xl font-bold tracking-tight sm:text-5xl mb-6 lg:leading-[3.7rem] leading-tight lg:min-w-[700px] min-w-full">
-                {data.Title}
+                <GradualSpacing text={data.Title}/>
               </h1>
             </div>
           ))}
