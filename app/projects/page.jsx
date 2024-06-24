@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getExperiment } from "@/sanity/sanity.query";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/src/components/ui/card"
 import { Button } from "@/src/components/ui/button"
+import GradualSpacing from "@/src/components/ui/gradual-spacing";
 
 export default async function Project() {
   const projects = await getExperiment();
@@ -46,6 +47,7 @@ export default async function Project() {
           <div className="flex flex-col">
             <section className="max-w-2xl md:mb-0 mx-10 p-2 py-3 flex flex-col mt-4">
               <h1 className="text-3xl font-bold tracking-tight sm:text-5xl mb-6 lg:leading-[3.7rem] leading-tight">
+              {/* <GradualSpacing text="Vibrations RT-Labs Experiments" className="grotesk"/>   */}
                 Vibrations RT-Labs Experiments
               </h1>
               <p className="text-base text-zinc-400 leading-relaxed">

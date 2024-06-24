@@ -13,7 +13,6 @@
     "bullmq": "^5.4.0",
     "clsx": "^2.1.1",
     "class-variance-authority": "^0.7.0",
-    "clsx": "^2.1.1",
     "concurrently": "^8.2.2",
     "dotenv": "^16.4.5",
     "file-saver": "^2.0.5",
