@@ -1,9 +1,9 @@
 "use client"
 import Image from "next/image";
 import Link from "next/link";
-import Logo from "../../icons/logo.png";
-import { MenuIcon } from "@/src/icons/MenuIcon";
-import { CloseIcon } from "@/src/icons/CloseIcon";
+import Logo from "../../../icons/logo.png";
+import { MenuIcon } from "../../../icons/MenuIcon";
+import { CloseIcon } from "../../../icons/CloseIcon";
 import { useState } from "react";
 
 export default function Navbar() {

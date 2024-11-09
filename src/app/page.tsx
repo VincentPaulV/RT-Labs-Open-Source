@@ -4,7 +4,7 @@ import { getProfile } from "@/sanity/sanity.query";
 import type { ProfileType } from "@/types";
 import Link from "next/link";
 import { FormEvent } from 'react'
-import GradualSpacing from "../src/components/ui/gradual-spacing";
+import GradualSpacing from "../app/components/ui/gradual-spacing";
 
 export default async function Home() {
   const profile: ProfileType[] = await getProfile();

@@ -3,8 +3,9 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import Navbar from "../src/components/global/Navbar";
-import Footer from "../src/components/global/Footer";
+import Navbar from "../app/components/global/Navbar";
+import Footer from "../app/components/global/Footer";
+import { Toaster } from 'react-hot-toast';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,9 +22,14 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en">
       <body className={`${inter.className} bg-zinc-900 text-white min-h-screen flex flex-col`}>
-        <Navbar />
-        <div className="mt-20">
-          {children}
+        <div className="relative min-h-screen">
+          <nav className="sticky top-0 z-50 bg-zinc-900 border-b border-zinc-800 mb-8">
+            <Navbar />
+          </nav>
+          <main className="relative z-0 mt-20">
+            {children}
+          </main>
+          <Toaster position="bottom-right" />
         </div>
         <Footer />
       </body>

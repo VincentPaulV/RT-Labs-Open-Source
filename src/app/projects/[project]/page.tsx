@@ -56,12 +56,12 @@ export default async function Project({ params }: Props) {
      <section className="grid xl:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-5 mb-12 mt-6">
 
           <Link
-            href={project.experiment_URL}
+            href={`/experiment/${slug}`}
             key={project._id}
             className="flex items-center gap-x-4 bg-[#1d1d20] border border-transparent hover:border-zinc-700 p-4 rounded-lg ease-in-out"
           >
             <div>
-              <h2 className="font-semibold mb-1">Go the Experiment</h2>
+              <h2 className="font-semibold mb-1">Go to the Experiment</h2>
               <div className="text-sm text-zinc-400">Note: You have 5 mins to complete it!</div>
             </div>
           </Link>
