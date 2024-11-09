@@ -136,6 +136,7 @@ export async function POST(
     
     // Get the project to get the experiment_URL
     const project = await getSingleProject(projectId);
+    console.log("project to get the experiment_URL", project?.experiment_URL)
     if (!project?.experiment_URL) {
       throw new Error('No experiment URL found');
     }
