@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { getExperiment } from "@/sanity/sanity.query";
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/src/components/ui/card"
-import { Button } from "@/src/components/ui/button"
-import GradualSpacing from "@/src/components/ui/gradual-spacing";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "../components/ui/card"
+import { Button } from "../components/ui/button"
+import GradualSpacing from "../components/ui/gradual-spacing";
 
 export default async function Project() {
   const projects = await getExperiment();
