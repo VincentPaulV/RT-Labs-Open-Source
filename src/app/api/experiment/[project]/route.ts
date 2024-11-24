@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSingleProject } from "@/sanity/sanity.query";
 
+const backendURL = "https://cd90-2401-4900-62fa-8c09-1d61-6bf7-1c33-7087.ngrok-free.app"
+
 // Sample data as fallback
 const sampleData = [
   {"ax": -0.32, "time_ms": 2}, {"ax": -0.36, "time_ms": 13}, {"ax": -0.3, "time_ms": 24}, 
@@ -87,7 +89,7 @@ export async function GET(
     }
 
     // Call our Express API server instead of Pico directly
-    const response = await fetch(`http://localhost:4000/api/experiment/${projectId}?picoUrl=${encodeURIComponent(project.experiment_URL)}`, {
+    const response = await fetch(`${backendURL}/api/experiment/${projectId}?picoUrl=${encodeURIComponent(project.experiment_URL)}`, {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'

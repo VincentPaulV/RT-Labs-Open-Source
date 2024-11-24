@@ -1,15 +1,19 @@
 import express from 'express';
 import cors from 'cors';
 import fetch from 'node-fetch';
+import http from 'http';
+import initVideoStream from './videoStreamServer.js';
 
 const app = express();
-const port = 4000;
+const server = http.createServer(app);
+
+// Initialize video streaming
+initVideoStream(server);
 
 // Sample fallback data
 const sampleData = [
   {"ax": -0.32, "time_ms": 2}, 
   {"ax": -0.36, "time_ms": 13}
-  // Add more sample data points if needed
 ];
 
 app.use(cors());
@@ -129,7 +133,8 @@ app.get('/test', (req, res) => {
   });
 });
 
-app.listen(port, () => {
-  console.log(`API server running at http://localhost:${port}`);
-  console.log(`Test the server at http://localhost:${port}/test`);
+const PORT = process.env.PORT || 3001;
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Test the server at http://localhost:${PORT}/test`);
 });
