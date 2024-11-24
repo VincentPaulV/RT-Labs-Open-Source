@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSingleProject } from "@/sanity/sanity.query";
 
+const backendURL = "https://cd90-2401-4900-62fa-8c09-1d61-6bf7-1c33-7087.ngrok-free.app"
+
 // Sample data as fallback
 const sampleData = [
   {"ax": -0.32, "time_ms": 2}, {"ax": -0.36, "time_ms": 13}, {"ax": -0.3, "time_ms": 24}, 
@@ -79,47 +81,46 @@ export async function GET(
   const projectId = params.project;
   
   try {
-    // First get the project to get the experiment_URL
     const project = await getSingleProject(projectId);
+    console.log("Project URL:", project?.experiment_URL);
+    
     if (!project?.experiment_URL) {
-      throw new Error('No experiment URL found');
+      throw new Error('No experiment URL configured');
     }
 
-    // Fetch data from the experiment URL
-    const response = await fetch(`${project.experiment_URL}/collect`, {
-      method: "GET",
+    // Call our Express API server instead of Pico directly
+    const response = await fetch(`${backendURL}/api/experiment/${projectId}?picoUrl=${encodeURIComponent(project.experiment_URL)}`, {
       headers: {
-        Accept: "application/json",
-        "Cache-Control": "no-store",
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
       },
+      cache: 'no-store'
     });
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data = await response.json();
-    console.log("Data fetched successfully");
+    const result = await response.json();
+
+    if (!result.success) {
+      throw new Error(result.message);
+    }
 
     return NextResponse.json({
       success: true,
       message: 'Experiment data retrieved',
       projectId,
-      data
-    }, {
-      headers: {
-        "Cache-Control": "no-store, no-cache, must-revalidate",
-      },
+      data: result.data
     });
 
   } catch (error) {
     console.error("Error fetching data:", error);
     
-    // Return sample data as fallback with a warning message
     return NextResponse.json({
-      success: true,
-      message: 'Using fallback data',
-      warning: 'Could not connect to experiment. Using sample data.',
+      success: false,
+      message: 'Using sample data',
+      warning: `Failed to get live data: ${error instanceof Error ? error.message : 'Unknown error'}`,
       projectId,
       data: sampleData
     });
@@ -145,9 +146,10 @@ export async function POST(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Cache-Control": "no-store",
+        "Accept": "application/json"
       },
       body: JSON.stringify(data),
+      cache: 'no-store'
     });
 
     if (!response.ok) {
@@ -161,6 +163,11 @@ export async function POST(
       message: 'Data point added successfully',
       projectId,
       data: result
+    }, {
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store"
+      }
     });
   } catch (error) {
     return NextResponse.json(
@@ -169,7 +176,13 @@ export async function POST(
         message: 'Failed to process data',
         error: error instanceof Error ? error.message : 'Unknown error'
       },
-      { status: 500 }
+      { 
+        status: 500,
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-store"
+        }
+      }
     );
   }
 } 

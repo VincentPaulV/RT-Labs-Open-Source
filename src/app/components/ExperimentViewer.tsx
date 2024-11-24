@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { toast } from 'react-hot-toast';
+import { io } from 'socket.io-client';
+import IPCameraViewer from './IPCameraViewer';
 
 interface ExperimentViewerProps {
   experimentUrl: string;
@@ -10,108 +12,94 @@ interface ExperimentViewerProps {
   projectName: string;
 }
 
+const backendURL = 'https://cd90-2401-4900-62fa-8c09-1d61-6bf7-1c33-7087.ngrok-free.app'
+
 export default function ExperimentViewer({ experimentUrl, projectSlug, projectName }: ExperimentViewerProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [graphData, setGraphData] = useState<any[]>([]);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [selectedCamera, setSelectedCamera] = useState('');
-  const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
   const [copied, setCopied] = useState(false);
+  const [isStreamer, setIsStreamer] = useState(false);
+  const socketRef = useRef<any>(null);
 
-  const getCameras = async () => {
-    try {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const videoDevices = devices.filter(device => device.kind === 'videoinput');
-      
-      setCameras(videoDevices);
-      
-      // Auto-select Iriun camera if available
-      const iriunCamera = videoDevices.find(device => device.label.includes('Iriun'));
-      if (iriunCamera) {
-        setSelectedCamera(iriunCamera.deviceId);
-      }
-    } catch (error) {
-      console.error('Error getting cameras:', error);
-    }
-  };
+  const fetchController = useRef<AbortController | null>(null);
+
+
 
   useEffect(() => {
-    // Initial camera setup
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(initialStream => {
-        initialStream.getTracks().forEach(track => track.stop());
-        getCameras();
-      })
-      .catch(error => console.error('Initial camera access error:', error));
-
-    // Add device change listener
-    navigator.mediaDevices.addEventListener('devicechange', getCameras);
     
+
     // Fetch initial data
     fetchExperimentData();
 
-    // Cleanup
-    return () => {
-      navigator.mediaDevices.removeEventListener('devicechange', getCameras);
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
-    };
+   
   }, []);
 
-  const handleStreamToggle = async () => {
-    try {
-      if (stream) {
-        // Stop streaming
-        stream.getTracks().forEach(track => track.stop());
-        if (videoRef.current) {
-          videoRef.current.srcObject = null;
-        }
-        setStream(null);
-        return;
-      }
-
-      if (!selectedCamera) {
-        toast.error('Please select a camera');
-        return;
-      }
-
-      const newStream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          deviceId: { exact: selectedCamera }
-        },
-        audio: false
-      });
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = newStream;
-      }
-      setStream(newStream);
-    } catch (error) {
-      console.error('Error accessing webcam:', error);
-      toast.error('Error accessing webcam. Please make sure Iriun Webcam is running and connected.');
-    }
-  };
+  
 
   const fetchExperimentData = async () => {
+    // Abort previous request if it exists
+    if (fetchController.current) {
+      fetchController.current.abort();
+    }
+    
+    // Create new controller for this request
+    fetchController.current = new AbortController();
+    
     try {
-      const response = await fetch(`/api/experiment/${projectSlug}`);
+      setIsLoading(true);
+      console.log('Fetching data for project:', projectSlug); // Debug log
+
+      const response = await fetch(`/api/experiment/${projectSlug}`, {
+        signal: fetchController.current.signal
+      });
+      
       if (!response.ok) throw new Error('Failed to fetch data');
       const result = await response.json();
+      
+      console.log('Received data:', result); // Debug log
       
       if (result.warning) {
         toast.error(result.warning);
       }
       
-      setGraphData(result.data);
+      if (result.data && Array.isArray(result.data)) {
+        console.log('Setting graph data with', result.data.length, 'points'); // Debug log
+        console.log('First data point:', result.data[0]); // Debug log
+        setGraphData(result.data);
+      } else {
+        console.error('Invalid data format received:', result); // Debug log
+        toast.error('Invalid data format received');
+      }
     } catch (error) {
-      console.error('Error:', error);
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.log('Request aborted'); // Debug log
+        return;
+      }
+
+      console.error('Error fetching data:', error);
       toast.error('Failed to fetch experiment data. Using sample data instead.');
     } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchExperimentData();
+    
+    // Cleanup function
+    return () => {
+      if (fetchController.current) {
+        fetchController.current.abort();
+      }
+    };
+  }, [projectSlug]); // Only re-run if projectSlug changes
+
+  // Add a useEffect to monitor graphData changes
+  useEffect(() => {
+    console.log('graphData updated:', graphData); // Debug log
+  }, [graphData]);
 
   const copyToClipboard = () => {
     const headers = ['Time (ms)', 'Acceleration (m/s²)'];
@@ -130,104 +118,87 @@ export default function ExperimentViewer({ experimentUrl, projectSlug, projectNa
       <div className="w-full p-6 rounded-lg border border-zinc-800 bg-zinc-900 text-center">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold text-white">Live Experiment View</h2>
-          <select 
-            value={selectedCamera}
-            onChange={(e) => setSelectedCamera(e.target.value)}
-            className="px-4 py-2 border border-zinc-700 rounded-lg bg-zinc-800 text-white"
-          >
-            <option value="">Select camera</option>
-            {cameras.map(camera => (
-              <option key={camera.deviceId} value={camera.deviceId}>
-                {camera.label || `Camera ${camera.deviceId}`}
-              </option>
-            ))}
-          </select>
         </div>
 
-        <button
-          onClick={handleStreamToggle}
-          className={`mb-4 px-6 py-2 rounded-lg font-medium transition-colors ${
-            stream 
-              ? 'bg-red-600 hover:bg-red-700 text-white' 
-              : 'bg-green-600 hover:bg-green-700 text-white'
-          }`}
-        >
-          {stream ? 'Stop Streaming' : 'Start Streaming'}
-        </button>
+        <div className="w-full p-6 rounded-lg border border-zinc-800 bg-zinc-900 text-center">
+          <IPCameraViewer />
+      </div>
+  
+
+
+
         
-        <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            className="w-full h-full object-contain"
-          />
-        </div>
       </div>
 
       {/* Graph Section */}
       <div className="w-full p-6 rounded-lg border border-zinc-800 bg-zinc-900">
         <h2 className="text-2xl font-bold text-white mb-4">Acceleration vs Time Graph</h2>
         <div className="w-full h-[500px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart 
-              data={graphData}
-              margin={{ top: 20, right: 30, left: 50, bottom: 50 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-              <XAxis 
-                dataKey="time_ms" 
-                label={{ 
-                  value: 'Time (ms)', 
-                  position: 'bottom',
-                  offset: 20,
-                  fill: '#fff'
-                }}
-                tick={{ fill: '#fff' }}
-                stroke="#fff"
-              />
-              <YAxis 
-                label={{ 
-                  value: 'Acceleration (m/s²)', 
-                  angle: -90, 
-                  position: 'insideLeft',
-                  offset: -35,
-                  fill: '#fff'
-                }}
-                tick={{ fill: '#fff' }}
-                stroke="#fff"
-              />
-              <Tooltip 
-                formatter={(value: number) => [`${value.toFixed(2)} m/s²`, 'Acceleration']}
-                labelFormatter={(label) => `Time: ${label} ms`}
-                contentStyle={{
-                  backgroundColor: 'rgba(17, 24, 39, 0.9)',
-                  border: '1px solid #374151',
-                  borderRadius: '4px',
-                  padding: '8px',
-                  color: '#fff'
-                }}
-              />
-              <Legend 
-                verticalAlign="top" 
-                height={36}
-                wrapperStyle={{
-                  paddingTop: '10px',
-                  paddingBottom: '10px',
-                  color: '#fff'
-                }}
-              />
-              <Line 
-                type="monotone" 
-                dataKey="ax" 
-                stroke="#3b82f6" 
-                name="Acceleration"
-                dot={false}
-                isAnimationActive={false}
-                strokeWidth={2}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          {graphData.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart 
+                data={graphData}
+                margin={{ top: 20, right: 30, left: 50, bottom: 50 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                <XAxis 
+                  dataKey="time_ms" 
+                  label={{ 
+                    value: 'Time (ms)', 
+                    position: 'bottom',
+                    offset: 20,
+                    fill: '#fff'
+                  }}
+                  tick={{ fill: '#fff' }}
+                  stroke="#fff"
+                />
+                <YAxis 
+                  label={{ 
+                    value: 'Acceleration (m/s²)', 
+                    angle: -90, 
+                    position: 'insideLeft',
+                    offset: -35,
+                    fill: '#fff'
+                  }}
+                  tick={{ fill: '#fff' }}
+                  stroke="#fff"
+                />
+                <Tooltip 
+                  formatter={(value: number) => [`${value.toFixed(2)} m/s²`, 'Acceleration']}
+                  labelFormatter={(label) => `Time: ${label} ms`}
+                  contentStyle={{
+                    backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                    border: '1px solid #374151',
+                    borderRadius: '4px',
+                    padding: '8px',
+                    color: '#fff'
+                  }}
+                />
+                <Legend 
+                  verticalAlign="top" 
+                  height={36}
+                  wrapperStyle={{
+                    paddingTop: '10px',
+                    paddingBottom: '10px',
+                    color: '#fff'
+                  }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="ax" 
+                  stroke="#3b82f6" 
+                  name="Acceleration"
+                  dot={false}
+                  isAnimationActive={false}
+                  strokeWidth={2}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex items-center justify-center h-full text-zinc-500">
+              No data available
+            </div>
+          )}
         </div>
       </div>
 
