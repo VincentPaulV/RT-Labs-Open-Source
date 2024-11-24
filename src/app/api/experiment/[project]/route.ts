@@ -79,47 +79,46 @@ export async function GET(
   const projectId = params.project;
   
   try {
-    // First get the project to get the experiment_URL
     const project = await getSingleProject(projectId);
+    console.log("Project URL:", project?.experiment_URL);
+    
     if (!project?.experiment_URL) {
-      throw new Error('No experiment URL found');
+      throw new Error('No experiment URL configured');
     }
 
-    // Fetch data from the experiment URL
-    const response = await fetch(`${project.experiment_URL}/collect`, {
-      method: "GET",
+    // Call our Express API server instead of Pico directly
+    const response = await fetch(`http://localhost:4000/api/experiment/${projectId}?picoUrl=${encodeURIComponent(project.experiment_URL)}`, {
       headers: {
-        Accept: "application/json",
-        "Cache-Control": "no-store",
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
       },
+      cache: 'no-store'
     });
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data = await response.json();
-    console.log("Data fetched successfully");
+    const result = await response.json();
+
+    if (!result.success) {
+      throw new Error(result.message);
+    }
 
     return NextResponse.json({
       success: true,
       message: 'Experiment data retrieved',
       projectId,
-      data
-    }, {
-      headers: {
-        "Cache-Control": "no-store, no-cache, must-revalidate",
-      },
+      data: result.data
     });
 
   } catch (error) {
     console.error("Error fetching data:", error);
     
-    // Return sample data as fallback with a warning message
     return NextResponse.json({
-      success: true,
-      message: 'Using fallback data',
-      warning: 'Could not connect to experiment. Using sample data.',
+      success: false,
+      message: 'Using sample data',
+      warning: `Failed to get live data: ${error instanceof Error ? error.message : 'Unknown error'}`,
       projectId,
       data: sampleData
     });
@@ -145,9 +144,10 @@ export async function POST(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Cache-Control": "no-store",
+        "Accept": "application/json"
       },
       body: JSON.stringify(data),
+      cache: 'no-store'
     });
 
     if (!response.ok) {
@@ -161,6 +161,11 @@ export async function POST(
       message: 'Data point added successfully',
       projectId,
       data: result
+    }, {
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store"
+      }
     });
   } catch (error) {
     return NextResponse.json(
@@ -169,7 +174,13 @@ export async function POST(
         message: 'Failed to process data',
         error: error instanceof Error ? error.message : 'Unknown error'
       },
-      { status: 500 }
+      { 
+        status: 500,
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-store"
+        }
+      }
     );
   }
 } 

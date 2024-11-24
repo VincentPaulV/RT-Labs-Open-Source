@@ -19,6 +19,8 @@ export default function ExperimentViewer({ experimentUrl, projectSlug, projectNa
   const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
   const [copied, setCopied] = useState(false);
 
+  const fetchController = useRef<AbortController | null>(null);
+
   const getCameras = async () => {
     try {
       const devices = await navigator.mediaDevices.enumerateDevices();
@@ -95,23 +97,67 @@ export default function ExperimentViewer({ experimentUrl, projectSlug, projectNa
   };
 
   const fetchExperimentData = async () => {
+    // Abort previous request if it exists
+    if (fetchController.current) {
+      fetchController.current.abort();
+    }
+    
+    // Create new controller for this request
+    fetchController.current = new AbortController();
+    
     try {
-      const response = await fetch(`/api/experiment/${projectSlug}`);
+      setIsLoading(true);
+      console.log('Fetching data for project:', projectSlug); // Debug log
+
+      const response = await fetch(`/api/experiment/${projectSlug}`, {
+        signal: fetchController.current.signal
+      });
+      
       if (!response.ok) throw new Error('Failed to fetch data');
       const result = await response.json();
+      
+      console.log('Received data:', result); // Debug log
       
       if (result.warning) {
         toast.error(result.warning);
       }
       
-      setGraphData(result.data);
+      if (result.data && Array.isArray(result.data)) {
+        console.log('Setting graph data with', result.data.length, 'points'); // Debug log
+        console.log('First data point:', result.data[0]); // Debug log
+        setGraphData(result.data);
+      } else {
+        console.error('Invalid data format received:', result); // Debug log
+        toast.error('Invalid data format received');
+      }
     } catch (error) {
-      console.error('Error:', error);
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.log('Request aborted'); // Debug log
+        return;
+      }
+
+      console.error('Error fetching data:', error);
       toast.error('Failed to fetch experiment data. Using sample data instead.');
     } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchExperimentData();
+    
+    // Cleanup function
+    return () => {
+      if (fetchController.current) {
+        fetchController.current.abort();
+      }
+    };
+  }, [projectSlug]); // Only re-run if projectSlug changes
+
+  // Add a useEffect to monitor graphData changes
+  useEffect(() => {
+    console.log('graphData updated:', graphData); // Debug log
+  }, [graphData]);
 
   const copyToClipboard = () => {
     const headers = ['Time (ms)', 'Acceleration (m/s²)'];
@@ -169,65 +215,71 @@ export default function ExperimentViewer({ experimentUrl, projectSlug, projectNa
       <div className="w-full p-6 rounded-lg border border-zinc-800 bg-zinc-900">
         <h2 className="text-2xl font-bold text-white mb-4">Acceleration vs Time Graph</h2>
         <div className="w-full h-[500px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart 
-              data={graphData}
-              margin={{ top: 20, right: 30, left: 50, bottom: 50 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-              <XAxis 
-                dataKey="time_ms" 
-                label={{ 
-                  value: 'Time (ms)', 
-                  position: 'bottom',
-                  offset: 20,
-                  fill: '#fff'
-                }}
-                tick={{ fill: '#fff' }}
-                stroke="#fff"
-              />
-              <YAxis 
-                label={{ 
-                  value: 'Acceleration (m/s²)', 
-                  angle: -90, 
-                  position: 'insideLeft',
-                  offset: -35,
-                  fill: '#fff'
-                }}
-                tick={{ fill: '#fff' }}
-                stroke="#fff"
-              />
-              <Tooltip 
-                formatter={(value: number) => [`${value.toFixed(2)} m/s²`, 'Acceleration']}
-                labelFormatter={(label) => `Time: ${label} ms`}
-                contentStyle={{
-                  backgroundColor: 'rgba(17, 24, 39, 0.9)',
-                  border: '1px solid #374151',
-                  borderRadius: '4px',
-                  padding: '8px',
-                  color: '#fff'
-                }}
-              />
-              <Legend 
-                verticalAlign="top" 
-                height={36}
-                wrapperStyle={{
-                  paddingTop: '10px',
-                  paddingBottom: '10px',
-                  color: '#fff'
-                }}
-              />
-              <Line 
-                type="monotone" 
-                dataKey="ax" 
-                stroke="#3b82f6" 
-                name="Acceleration"
-                dot={false}
-                isAnimationActive={false}
-                strokeWidth={2}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          {graphData.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart 
+                data={graphData}
+                margin={{ top: 20, right: 30, left: 50, bottom: 50 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                <XAxis 
+                  dataKey="time_ms" 
+                  label={{ 
+                    value: 'Time (ms)', 
+                    position: 'bottom',
+                    offset: 20,
+                    fill: '#fff'
+                  }}
+                  tick={{ fill: '#fff' }}
+                  stroke="#fff"
+                />
+                <YAxis 
+                  label={{ 
+                    value: 'Acceleration (m/s²)', 
+                    angle: -90, 
+                    position: 'insideLeft',
+                    offset: -35,
+                    fill: '#fff'
+                  }}
+                  tick={{ fill: '#fff' }}
+                  stroke="#fff"
+                />
+                <Tooltip 
+                  formatter={(value: number) => [`${value.toFixed(2)} m/s²`, 'Acceleration']}
+                  labelFormatter={(label) => `Time: ${label} ms`}
+                  contentStyle={{
+                    backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                    border: '1px solid #374151',
+                    borderRadius: '4px',
+                    padding: '8px',
+                    color: '#fff'
+                  }}
+                />
+                <Legend 
+                  verticalAlign="top" 
+                  height={36}
+                  wrapperStyle={{
+                    paddingTop: '10px',
+                    paddingBottom: '10px',
+                    color: '#fff'
+                  }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="ax" 
+                  stroke="#3b82f6" 
+                  name="Acceleration"
+                  dot={false}
+                  isAnimationActive={false}
+                  strokeWidth={2}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex items-center justify-center h-full text-zinc-500">
+              No data available
+            </div>
+          )}
         </div>
       </div>
 
