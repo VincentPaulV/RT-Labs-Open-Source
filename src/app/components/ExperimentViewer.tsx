@@ -6,13 +6,14 @@ import { toast } from 'react-hot-toast';
 import { io } from 'socket.io-client';
 import IPCameraViewer from './IPCameraViewer';
 
+
 interface ExperimentViewerProps {
   experimentUrl: string;
   projectSlug: string;
   projectName: string;
 }
 
-const backendURL = 'https://cd90-2401-4900-62fa-8c09-1d61-6bf7-1c33-7087.ngrok-free.app'
+const backendURL = 'http://localhost:3001'
 
 export default function ExperimentViewer({ experimentUrl, projectSlug, projectName }: ExperimentViewerProps) {
   const [isLoading, setIsLoading] = useState(true);
