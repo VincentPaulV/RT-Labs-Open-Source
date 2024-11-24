@@ -5,6 +5,7 @@ import type { ProfileType } from "@/types";
 import Link from "next/link";
 import { FormEvent } from 'react'
 import GradualSpacing from "../app/components/ui/gradual-spacing";
+import IPCameraViewer from "./components/IPCameraViewer";
 
 export default async function Home() {
   const profile: ProfileType[] = await getProfile();
@@ -66,6 +67,9 @@ export default async function Home() {
             </div>
           </Link>
       </section>
+
+  
+
 
       {/* <section>
           <a href="#" className="block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
