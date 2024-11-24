@@ -4,8 +4,13 @@ import fetch from 'node-fetch';
 import http from 'http';
 import initVideoStream from './videoStreamServer.js';
 
+import dotenv from 'dotenv';
+import axios from 'axios';
+
 const app = express();
 const server = http.createServer(app);
+
+const videoURL = 'http://192.168.76.159:4747'
 
 // Initialize video streaming
 initVideoStream(server);
@@ -19,9 +24,55 @@ const sampleData = [
 app.use(cors());
 app.use(express.json());  
 
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  next();
+});
+
 // Cache for experiment data
 let experimentDataCache = {};
 const CACHE_DURATION = 5000; // 5 seconds
+
+app.get('/video', async (req, res) => {
+  try {
+    console.log('Sending override request...');
+    
+    // Make the override request first
+    await axios({
+      method: 'get',
+      url: `${videoURL}/override`,
+    });
+
+    console.log('Override request completed. Fetching video stream...');
+
+    // Now fetch the video stream
+    const videoResponse = await axios({
+      method: 'get',
+      url: `${videoURL}/video`,
+      responseType: 'stream',
+    });
+
+    // Set the response headers for video streaming
+    res.setHeader('Content-Type', videoResponse.headers['content-type'] || 'video/mp4');
+    res.setHeader('Cache-Control', 'no-cache');
+    console.log('Video stream response headers:', videoResponse.headers);
+
+    // Pipe the video stream data to the response
+    videoResponse.data.pipe(res);
+
+    // Handle when the response is closed
+    res.on('close', () => {
+      console.log('Video stream response ended.');
+    });
+  } catch (error) {
+    console.error('Error during video streaming:', error.message);
+    res.status(500).send('Error during video streaming');
+  }
+});
+
+
+
+
 
 app.get('/api/experiment/:projectId', async (req, res) => {
   const { projectId } = req.params;

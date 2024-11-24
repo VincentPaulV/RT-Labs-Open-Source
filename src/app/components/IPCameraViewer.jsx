@@ -2,6 +2,11 @@
 
 import { useState, useRef } from "react";
 import { Maximize2, RefreshCw } from "lucide-react";
+import Image from "next/image";
+
+// const backendURL = "https://5ae6-2409-40f2-3057-91fb-877-9f8b-6ae4-22d7.ngrok-free.app"
+
+const backendURL = "http://localhost:3001"
 
 export default function IPCameraViewer() {
   const [isLoading, setIsLoading] = useState(false);
@@ -37,9 +42,11 @@ export default function IPCameraViewer() {
       <div className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden mb-4">
         <img
           ref={videoRef}
-          src="http://10.100.81.47:4747/video"
+          src={`${backendURL}/video`}
           alt="Camera Feed"
           className="w-full h-full object-cover"
+          width={1280}
+          height={720}
         />
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
